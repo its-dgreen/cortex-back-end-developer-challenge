@@ -1,0 +1,27 @@
+version: '3.7'
+services:
+  express:
+    build: .
+    ports:
+      - '3000:6789'
+    links:
+      - mongo
+    environment:
+      MONGODB_URI: 'mongodb://root:cortexfandom2021@mongo:27017/cortex?authSource=admin&w=1'
+  mongo:
+    image: mongo:latest
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: cortexfandom2021
+      MONGO_INITDB_DATABASE: cortex
+    ports:
+      - '27017:27017'
+    expose:
+      - '27017'
+    volumes:
+      - mongo:/data/db
+    command: [--auth]
+    restart: always
+
+volumes:
+  mongo:

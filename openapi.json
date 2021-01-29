@@ -1,0 +1,717 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "cortex-back-end-developer-challenge",
+    "description": "API for managing a character's hit points in Cortex.",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Dylan Green",
+      "email": "dylan@ctrlaltdylan.com"
+    }
+  },
+  "tags": [
+    {
+      "name": "Character",
+      "description": "Create, fetch, update, and delete characters"
+    },
+    {
+      "name": "Hit Points",
+      "description": "Deal damage, heal hit points, and grant temporary hit points to a character"
+    }
+  ],
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "paths": {
+    "/": {
+      "get": {
+        "tags": ["Character"],
+        "operationId": "getAllCharacters",
+        "description": "Returns all characters",
+        "responses": {
+          "200": {
+            "description": "A successful response will return all of the characters that exist within the application\n",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "characters": {
+                      "$ref": "#/components/schemas/Character"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/character/{id}": {
+      "get": {
+        "tags": ["Character"],
+        "operationId": "getCharacterById",
+        "description": "Returns a single character, found by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of character to be fetched",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "A successful response will return the character with the specified ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "character": {
+                      "$ref": "#/components/schemas/Character"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Character"],
+        "operationId": "deleteCharacter",
+        "description": "Deletes a single character, found by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of character to be deleted",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response will return a message",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "message": {
+                      "$type": "string",
+                      "example": "Deleted character with ID 6013052dda90c3426fa89eae"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      },
+      "put": {
+        "tags": ["Character"],
+        "operationId": "updateCharacter",
+        "description": "Updates a single character, found by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of character to be updated",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "character": {
+                    "$ref": "#/components/schemas/Character",
+                    "required": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "A successful response will return the updated character with the specified ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "message": {
+                      "$type": "string",
+                      "example": "Updated character with ID 6013052dda90c3426fa89eae"
+                    },
+                    "character": {
+                      "$ref": "#/components/schemas/Character"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/create": {
+      "post": {
+        "tags": ["Character"],
+        "operationId": "createCharacter",
+        "description": "Creates a new character with either rolled or calculated average HP",
+        "parameters": [
+          {
+            "name": "hp",
+            "in": "query",
+            "description": "Calculate HP by rolling dice or taking the average. Rolled or Average",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "$ref": "#/components/schemas/NewCharacter",
+                "required": true
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "A successful response will return the character with the specified ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "characters": {
+                      "$ref": "#/components/schemas/Character"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/damage/{id}": {
+      "put": {
+        "tags": ["Hit Points"],
+        "operationId": "damageCharacter",
+        "description": "Creates a new character with either rolled or calculated average HP",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Specify the character to deal damage to",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "$ref": "#/components/schemas/Damage",
+                "required": true
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "A successful response will return a message, and the character with the specified ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Dealt 5 slashing damage to Briv!"
+                    },
+                    "character": {
+                      "$ref": "#/components/schemas/Character"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/heal/{id}/{amount}": {
+      "put": {
+        "tags": ["Hit Points"],
+        "operationId": "healCharacter",
+        "description": "Heals damage from a character, up to max HP",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of character to be fetched",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "amount",
+            "in": "path",
+            "description": "Amount of HP to heal from the specified character",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response will return a message, and the character with the specified ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Healed Briv for 5 hit points"
+                    },
+                    "character": {
+                      "$ref": "#/components/schemas/Character"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/temp/{id}/{amount}": {
+      "put": {
+        "tags": ["Hit Points"],
+        "operationId": "addTempHpToCharacter",
+        "description": "Grants temporary hit points to a character",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of character to be fetched",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "amount",
+            "in": "path",
+            "description": "Amount of temporary HP to give to the specified character",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response will return a message, and the character with the specified ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Added 5 temporary hit points to Briv"
+                    },
+                    "character": {
+                      "$ref": "#/components/schemas/Character"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Character": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": false,
+            "example": "Briv"
+          },
+          "level": {
+            "type": "integer",
+            "nullable": false,
+            "example": 5
+          },
+          "currentHp": {
+            "type": "integer",
+            "nullable": false,
+            "example": 30
+          },
+          "maxHp": {
+            "type": "integer",
+            "nullable": false,
+            "example": 30
+          },
+          "tempHp": {
+            "type": "integer",
+            "nullable": false,
+            "example": 5
+          },
+          "stats": {
+            "properties": {
+              "strength": {
+                "type": "integer",
+                "nullable": false,
+                "example": 10
+              },
+              "constitution": {
+                "type": "integer",
+                "nullable": false,
+                "example": 10
+              },
+              "dexterity": {
+                "type": "integer",
+                "nullable": false,
+                "example": 10
+              },
+              "intelligence": {
+                "type": "integer",
+                "nullable": false,
+                "example": 10
+              },
+              "wisdom": {
+                "type": "integer",
+                "nullable": false,
+                "example": 10
+              },
+              "charisma": {
+                "type": "integer",
+                "nullable": false,
+                "example": 10
+              }
+            }
+          },
+          "classes": {
+            "type": "array",
+            "items": {
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "nullable": false,
+                  "example": "Artificer"
+                },
+                "hitDiceValue": {
+                  "type": "integer",
+                  "nullable": false,
+                  "example": 8
+                },
+                "classLevel": {
+                  "type": "integer",
+                  "nullable": false,
+                  "example": 5
+                }
+              }
+            }
+          },
+          "defenses": {
+            "type": "array",
+            "items": {
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "nullable": false,
+                  "example": "Slashing"
+                },
+                "defense": {
+                  "type": "string",
+                  "nullable": false,
+                  "example": "Immunity"
+                }
+              }
+            }
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "nullable": false,
+                  "example": "Alchemy Jug"
+                },
+                "modifier": {
+                  "properties": {
+                    "affectedObject": {
+                      "type": "string",
+                      "nullable": false,
+                      "example": "Stats"
+                    },
+                    "affectedValue": {
+                      "type": "string",
+                      "nullable": false,
+                      "example": "Constitution"
+                    },
+                    "value": {
+                      "type": "string",
+                      "nullable": false,
+                      "example": 500
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "created": {
+            "type": "string",
+            "format": "datetime",
+            "example": "2021-01-01T10:42:34.320Z"
+          },
+          "lastEdited": {
+            "type": "string",
+            "format": "datetime",
+            "example": "2021-01-05T12:32:14.450Z"
+          }
+        }
+      },
+      "NewCharacter": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": false,
+            "example": "Briv"
+          },
+          "stats": {
+            "properties": {
+              "strength": {
+                "type": "integer",
+                "nullable": false,
+                "example": 10
+              },
+              "constitution": {
+                "type": "integer",
+                "nullable": false,
+                "example": 10
+              },
+              "dexterity": {
+                "type": "integer",
+                "nullable": false,
+                "example": 10
+              },
+              "intelligence": {
+                "type": "integer",
+                "nullable": false,
+                "example": 10
+              },
+              "wisdom": {
+                "type": "integer",
+                "nullable": false,
+                "example": 10
+              },
+              "charisma": {
+                "type": "integer",
+                "nullable": false,
+                "example": 10
+              }
+            }
+          },
+          "classes": {
+            "type": "array",
+            "items": {
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "nullable": false,
+                  "example": "Artificer"
+                },
+                "hitDiceValue": {
+                  "type": "integer",
+                  "nullable": false,
+                  "example": 8
+                },
+                "classLevel": {
+                  "type": "integer",
+                  "nullable": false,
+                  "example": 5
+                }
+              }
+            }
+          },
+          "defenses": {
+            "type": "array",
+            "items": {
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "nullable": false,
+                  "example": "Slashing"
+                },
+                "defense": {
+                  "type": "string",
+                  "nullable": false,
+                  "example": "Immunity"
+                }
+              }
+            }
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "nullable": false,
+                  "example": "Alchemy Jug"
+                },
+                "modifier": {
+                  "properties": {
+                    "affectedObject": {
+                      "type": "string",
+                      "nullable": false,
+                      "example": "Stats"
+                    },
+                    "affectedValue": {
+                      "type": "string",
+                      "nullable": false,
+                      "example": "Constitution"
+                    },
+                    "value": {
+                      "type": "string",
+                      "nullable": false,
+                      "example": 500
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "Error": {
+        "properties": {
+          "status": {
+            "type": "integer"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "Damage": {
+        "properties": {
+          "damageType": {
+            "type": "string",
+            "required": true,
+            "example": "Slashing"
+          },
+          "value": {
+            "type": "integer",
+            "required": true,
+            "example": 5
+          }
+        }
+      }
+    },
+    "responses": {
+      "NotFoundError": {
+        "description": "Not Found Error",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "status": 404,
+              "message": "Not Found"
+            }
+          }
+        }
+      },
+      "InternalServerError": {
+        "description": "Something Went Wrong",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "status": 500,
+              "message": "Internal Server Error"
+            }
+          }
+        }
+      }
+    }
+  }
+}
